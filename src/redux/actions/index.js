@@ -7,6 +7,7 @@
 export const ADD_TO_CART = 'ADD_TO_CART'
 export const REMOVE_FROM_CART = 'REMOVE_FROM_CART'
 export const SET_USERNAME = 'SET_USERNAME'
+export const GET_BOOKS = 'GET_BOOKS'
 
 // this is a function returning an action
 // in Redux terminology, this is called an "action creator"
@@ -34,3 +35,51 @@ export const setUsernameAction = (username) => {
 }
 
 // addToCartAction(something) <-- this gives me the action!
+
+// we'd like to move our fetch process into the redux flow; in this way
+// if we're going to invoke this operation again we won't have to copy/paste
+// the fetch (or even worse, the useEffect) through multiple components.
+// the reducer though is not the right place for it, since it's a pure function!
+// and there's no room for failure. so we have just one place left: this actions
+// file! Let's create an async action creator
+
+// let's re-write our setUsernameAction with an async shape!
+export const setUsernameActionAsync = (username) => {
+  // this async action creator doesn't return the action straight away,
+  // instead it returns a FUNCTION!
+  return async (dispatch, getState) => {
+    // this function can be async and you can eo anything into it!
+    console.log('I will console log this before returning the action!')
+    // dispatch is your good ol' dispatch function!
+    console.log("Let's also take a look the the current state:", getState())
+    dispatch({
+      type: SET_USERNAME,
+      payload: username,
+    })
+  }
+}
+
+// this async action creator is now going to be in charge of fetching the books
+// and putting them into the stock array into the book slice of the Redux Store
+export const getBooksAction = () => {
+  return async (dispatch, getState) => {
+    console.log('Fetching the books from the API...')
+    try {
+      let resp = await fetch(
+        'https://striveschool-api.herokuapp.com/food-books'
+      )
+      if (resp.ok) {
+        let fetchedBooks = await resp.json()
+        dispatch({
+          type: GET_BOOKS,
+          payload: fetchedBooks, // the reducer is just being given
+          // the final result, the array of books! so it cannot fail :)
+        })
+      } else {
+        console.log('error')
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+}

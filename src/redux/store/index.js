@@ -1,4 +1,5 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit'
+import bookReducer from '../reducers/bookReducer'
 import cartReducer from '../reducers/cartReducer'
 import userReducer from '../reducers/userReducer'
 // configureStore will set up the Redux Store for us!
@@ -19,6 +20,7 @@ const bigReducer = combineReducers({
   // the names of the keys here, cart and user, are re-creating the previous
   // structure! so the cart subobject gets now a cart property in combineReducers,
   // and the user subobject gets a key in combineReducers called 'user'
+  book: bookReducer,
 })
 
 const store = configureStore({
